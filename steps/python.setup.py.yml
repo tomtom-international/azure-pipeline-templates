@@ -1,0 +1,56 @@
+# Python setup.py
+# Build, lint and test Python modules based on setuptools (setup.py)
+
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: $(python.version)
+    architecture: "x64"
+
+- script: |
+    pip install --upgrade setuptools==40.8.0 pip==19.0.3
+    pip install --no-cache-dir \
+      bumpversion==0.5.3 \
+      twine==1.12.1 \
+      Sphinx==1.8.3 \
+      sphinx-rtd-theme==0.4.2 \
+      recommonmark==0.5.0 \
+      sphinx-markdown-tables==0.0.9 \
+      pylint==2.3.1 \
+      setuptools-lint==0.6.0 \
+      pytest==4.3.0 \
+      pytest-runner==4.4 \
+      pytest-pylint==0.14.0 \
+      pytest-cov==2.6.1 \
+      coverage==4.5.2
+  displayName: "Install Python prerequisites"
+
+- script: python setup.py build
+  displayName: "Build"
+
+- script: |
+    python setup.py install --user
+    python setup.py lint --lint-output-format parseable
+  displayName: "Pylint"
+
+- script: |
+    python setup.py test --addopts '--cov-report xml:build/coverage.xml --cov-report html --cov-report html:build/htmlcov --cov-report term --cov-branch --junitxml=build/test_results.xml'
+  displayName: "Tests"
+
+- script: |
+    python setup.py install --user
+    python setup.py build_sphinx
+  displayName: "Docs"
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+      testResultsFiles: "**/test*.xml"
+      testRunTitle: "$(Agent.OS) - $(Build.BuildNumber)[$(Agent.JobName)]"
+
+- task: PublishCodeCoverageResults@1
+  inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'

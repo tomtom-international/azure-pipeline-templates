@@ -1,0 +1,36 @@
+# Python setup.py
+# Job responsible for running Python steps for Linux and macOS
+
+jobs:
+- job: 'Linux'
+  strategy:
+    matrix:
+      Python35:
+        python.version: '3.5'
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - script: |
+      sudo apt-get install --no-install-recommends -y \
+        git gcc musl-dev curl libldap2-dev libsasl2-dev openssh-client
+    displayName: 'Install system dependencies'
+  - template: ../steps/python.setup.py.yml
+
+
+- job: 'macOS'
+  strategy:
+    matrix:
+      Python35:
+        python.version: '3.5'
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+  pool:
+    vmImage: 'macos-10.13'
+  steps:
+  - template: ../steps/python.setup.py.yml
