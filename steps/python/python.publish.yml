@@ -32,7 +32,7 @@ steps:
     pip install --no-cache-dir \
       bumpversion==0.5.3 \
       twine==1.12.1
-  displayName: "Install release prerequisites"
+  displayName: "Install publish prerequisites"
 
 - script: "bumpversion --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' release"
   displayName: "Bump version release"
