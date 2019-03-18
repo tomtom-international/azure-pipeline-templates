@@ -1,0 +1,9 @@
+# python.deps
+#
+# Installs Python prerequisites used by build and publish steps.
+#
+
+steps:
+- script: |
+    pip install --upgrade setuptools==40.8.0 pip==19.0.3
+  displayName: "Install generic Python prerequisites"
