@@ -1,6 +1,7 @@
-# Python setup.py
+# python.build
+#
 # Build, lint and test Python modules based on setuptools (setup.py)
-
+#
 
 steps:
 - task: UsePythonVersion@0
@@ -8,11 +9,10 @@ steps:
     versionSpec: $(python.version)
     architecture: "x64"
 
+- template: python.deps.yml
+
 - script: |
-    pip install --upgrade setuptools==40.8.0 pip==19.0.3
     pip install --no-cache-dir \
-      bumpversion==0.5.3 \
-      twine==1.12.1 \
       Sphinx==1.8.3 \
       sphinx-rtd-theme==0.4.2 \
       recommonmark==0.5.0 \
@@ -24,7 +24,8 @@ steps:
       pytest-pylint==0.14.0 \
       pytest-cov==2.6.1 \
       coverage==4.5.2
-  displayName: "Install Python prerequisites"
+  displayName: "Install build & test prerequisites"
+
 
 - script: python setup.py build
   displayName: "Build"

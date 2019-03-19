@@ -1,0 +1,56 @@
+# python.publish
+#
+# Publish Python package to PyPI.
+#
+
+parameters:
+  pypiConnector: ""
+
+steps:
+- checkout: self
+  # Allow scripts to access the system token so that the pipeline can push git changes (eg. version bump)
+  persistCredentials: true
+
+- script: |
+    git config --global user.email "noreply@tomtom.com"
+    git config --global user.name "tt-ci"
+  displayName: "Configure git"
+
+# Checkout master since by default Azure Pipelines do checkouts of specific commits (detached HEAD)
+# and we need to be at master to be able to push version bump changes.
+- script: git checkout master
+  displayName: "Checkout master"
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: "3.6"
+    architecture: "x64"
+
+- template: python.deps.yml
+
+- script: |
+    pip install --no-cache-dir \
+      bumpversion==0.5.3 \
+      twine==1.12.1
+  displayName: "Install publish prerequisites"
+
+- script: "bumpversion --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' release"
+  displayName: "Bump version release"
+
+- script: |
+    python setup.py build
+    python setup.py sdist
+  displayName: "Build & create distribution"
+
+- task: TwineAuthenticate@0
+  inputs:
+    externalFeeds: "${{ parameters.pypiConnector }}"
+
+- script: twine upload --verbose -r pypi --config-file $(PYPIRC_PATH) dist/*
+  displayName: "Publish to PyPI"
+
+- script: "bumpversion --no-tag --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' patch"
+  displayName: "Bump version patch"
+
+- script: git push origin master --tags
+  displayName: "Git push version patch"

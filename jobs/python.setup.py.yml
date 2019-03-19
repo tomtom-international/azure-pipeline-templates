@@ -1,5 +1,15 @@
-# Python setup.py
-# Job responsible for running Python steps for Linux and macOS
+# python.setup.py
+#
+# Job responsible for running Python steps for Linux and macOS. The jobs are responsible for
+#
+#  * building, linting and testing on Linux and macOS for various Python versions
+#  * publishing the Python package to PyPI
+#
+
+parameters:
+  # Name of 'Service connection' defined in Azure DevOps project settings
+  # See https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/twine-authenticate?view=azure-devops#arguments
+  pypiConnector: "testpypi-tomtom-dev"
 
 jobs:
 - job: 'Linux'
@@ -18,7 +28,7 @@ jobs:
       sudo apt-get install --no-install-recommends -y \
         git gcc musl-dev curl libldap2-dev libsasl2-dev openssh-client
     displayName: 'Install system dependencies'
-  - template: ../steps/python.setup.py.yml
+  - template: ../steps/python/python.build.yml
 
 
 - job: 'macOS'
@@ -33,4 +43,17 @@ jobs:
   pool:
     vmImage: 'macos-10.13'
   steps:
-  - template: ../steps/python.setup.py.yml
+  - template: ../steps/python/python.build.yml
+
+
+- job: 'Publish'
+  dependsOn:
+    - macOS
+    - Linux
+  condition: and(succeeded('macOS'), succeeded('Linux'), ne(variables['build.reason'], 'PullRequest'))
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - template: ../steps/python/python.publish.yml
+    parameters:
+      pypiConnector: "${{ parameters.pypiConnector }}"
