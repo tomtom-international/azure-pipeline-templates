@@ -16,10 +16,12 @@ steps:
     git config --global user.name "tt-ci"
   displayName: "Configure git"
 
-# Checkout master since by default Azure Pipelines do checkouts of specific commits (detached HEAD)
+# Checkout branch since by default Azure Pipelines do checkouts of specific commits (detached HEAD)
 # and we need to be at master to be able to push version bump changes.
-- script: git checkout master
-  displayName: "Checkout master"
+- powershell: write-host "##vso[task.setvariable variable=branch]$($env:BUILD_SOURCEBRANCH.substring($env:BUILD_SOURCEBRANCH.indexOf('/', 5) + 1))"
+
+- script: git checkout $(branch)
+  displayName: "Checkout branch"
 
 - task: UsePythonVersion@0
   inputs:
@@ -52,5 +54,5 @@ steps:
 - script: "bumpversion --no-tag --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' patch"
   displayName: "Bump version patch"
 
-- script: git push origin master --tags
+- script: git push origin $(branch) --tags
   displayName: "Git push version patch"
