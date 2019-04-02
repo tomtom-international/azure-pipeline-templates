@@ -1,6 +1,6 @@
-# python.publish
+# python.release
 #
-# Publish Python package to PyPI.
+# Release Python package to PyPI.
 #
 
 parameters:
