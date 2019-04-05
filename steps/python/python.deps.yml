@@ -5,5 +5,5 @@
 
 steps:
 - script: |
-    pip install --upgrade setuptools==40.8.0 pip==19.0.3
+    pip install --upgrade setuptools==40.8.0 pip==19.0.3 virtualenv==16.4.3
   displayName: "Install generic Python prerequisites"
