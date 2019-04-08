@@ -47,11 +47,27 @@ jobs:
   - template: ../steps/python/python.build.yml
 
 
+- job: 'Windows'
+  strategy:
+    matrix:
+      Python35:
+        python.version: '3.5'
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - template: ../steps/python/python.build.yml
+
+
 - job: 'Release'
   dependsOn:
     - macOS
     - Linux
-  condition: and(succeeded('macOS'), succeeded('Linux'), ne(variables['build.reason'], 'PullRequest'), eq(variables['release'], 'true'))
+    - Windows
+  condition: and(succeeded('macOS'), succeeded('Windows'), succeeded('Linux'), ne(variables['build.reason'], 'PullRequest'), eq(variables['release'], 'true'))
   pool:
     vmImage: 'ubuntu-16.04'
   steps:
