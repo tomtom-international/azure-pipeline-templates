@@ -9,8 +9,6 @@ steps:
     versionSpec: $(python.version)
     architecture: "x64"
 
-- template: python.deps.yml
-
 - bash: |
     if [ ! -f requirements_dev.txt ]; then
       echo "ERROR: no requirements_dev.txt available in project!"

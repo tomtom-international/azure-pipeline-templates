@@ -28,8 +28,6 @@ steps:
     versionSpec: "3.6"
     architecture: "x64"
 
-- template: python.deps.yml
-
 - script: |
     pip install --no-cache-dir \
       bumpversion==0.5.3 \

@@ -14,8 +14,6 @@ This job is based on setuptools and runs builds, linter and tests using `python 
 
 #### python.build.yml
 
-#### python.deps.yml
-
 #### python.publish.yml
 
 ## Creating Azure Pipelines
@@ -32,7 +30,7 @@ The following steps will create a Python project generated with the [`tomtom-int
     cookiecutter gh:tomtom-international/cookiecutter-python
     ```
 
-1. Create a new repository on GitHub
+2. Create a new repository on GitHub
 ![Create repo](assets/create-gh-repo.png)
 
 1. Push the generated project to GitHub
