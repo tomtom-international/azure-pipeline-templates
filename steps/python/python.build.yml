@@ -26,7 +26,7 @@ steps:
   displayName: "Pylint"
 
 - script: |
-    python setup.py test --addopts '--cov-report xml:build/coverage.xml --cov-report html --cov-report html:build/htmlcov --cov-report term --cov-branch --junitxml=build/test_results.xml'
+    python setup.py test --addopts "--cov-report xml:build/coverage.xml --cov-report html --cov-report html:build/htmlcov --cov-report term --cov-branch --junitxml=build/test_results.xml"
   displayName: "Tests"
 
 - script: |
