@@ -28,12 +28,12 @@ steps:
     versionSpec: "3.6"
     architecture: "x64"
 
-- template: python.deps.yml
-
 - script: |
     pip install --no-cache-dir \
       bumpversion==0.5.3 \
-      twine==1.12.1
+      twine==1.12.1 \
+      setuptools==40.8.0 \
+      pip==19.0.3
   displayName: "Install publish prerequisites"
 
 - script: "bumpversion --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' release"

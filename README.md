@@ -14,8 +14,6 @@ This job is based on setuptools and runs builds, linter and tests using `python 
 
 #### python.build.yml
 
-#### python.deps.yml
-
 #### python.publish.yml
 
 ## Creating Azure Pipelines

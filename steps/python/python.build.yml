@@ -9,14 +9,12 @@ steps:
     versionSpec: $(python.version)
     architecture: "x64"
 
-- template: python.deps.yml
-
 - bash: |
     if [ ! -f requirements_dev.txt ]; then
       echo "ERROR: no requirements_dev.txt available in project!"
       exit 1
     fi
-    pip install --no-cache-dir -r requirements_dev.txt
+    pip install --user --no-cache-dir -r requirements_dev.txt
   displayName: "Install build & test prerequisites"
 
 - script: python setup.py build
@@ -28,7 +26,7 @@ steps:
   displayName: "Pylint"
 
 - script: |
-    python setup.py test --addopts '--cov-report xml:build/coverage.xml --cov-report html --cov-report html:build/htmlcov --cov-report term --cov-branch --junitxml=build/test_results.xml'
+    python setup.py test --addopts "--cov-report xml:build/coverage.xml --cov-report html --cov-report html:build/htmlcov --cov-report term --cov-branch --junitxml=build/test_results.xml"
   displayName: "Tests"
 
 - script: |
