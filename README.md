@@ -30,7 +30,7 @@ The following steps will create a Python project generated with the [`tomtom-int
     cookiecutter gh:tomtom-international/cookiecutter-python
     ```
 
-2. Create a new repository on GitHub
+1. Create a new repository on GitHub
 ![Create repo](assets/create-gh-repo.png)
 
 1. Push the generated project to GitHub
