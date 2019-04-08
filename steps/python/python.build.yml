@@ -14,7 +14,7 @@ steps:
       echo "ERROR: no requirements_dev.txt available in project!"
       exit 1
     fi
-    pip install --no-cache-dir -r requirements_dev.txt
+    pip install --user --no-cache-dir -r requirements_dev.txt
   displayName: "Install build & test prerequisites"
 
 - script: python setup.py build
