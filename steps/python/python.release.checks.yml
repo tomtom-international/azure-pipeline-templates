@@ -1,0 +1,27 @@
+# python.release.checks
+#
+# Prechecks for release
+#
+
+steps:
+- checkout: self
+
+# Checkout branch since by default Azure Pipelines do checkouts of specific commits (detached HEAD)
+# and we need to be at master to be able to push version bump changes.
+- powershell: write-host "##vso[task.setvariable variable=branch]$($env:System.PullRequest.SourceBranch)"
+
+- script: git checkout $(branch)
+  displayName: "Checkout branch"
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: "3.6"
+    architecture: "x64"
+
+- script: |
+    pip install --no-cache-dir \
+      bumpversion==0.5.3 \
+  displayName: "Install publish prerequisites"
+
+- script: "bumpversion --dry-run --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' release"
+  displayName: "Test Bump Version Release"
