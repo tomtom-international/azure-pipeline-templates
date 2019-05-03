@@ -25,10 +25,6 @@ jobs:
   pool:
     vmImage: 'ubuntu-16.04'
   steps:
-  - script: |
-      sudo apt-get install --no-install-recommends -y \
-        git gcc musl-dev curl libldap2-dev libsasl2-dev openssh-client
-    displayName: 'Install system dependencies'
   - template: ../steps/python/python.build.yml
 
 
