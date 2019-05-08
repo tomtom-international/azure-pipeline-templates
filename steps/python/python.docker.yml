@@ -1,0 +1,35 @@
+parameters:
+  dockerRegistryConnector: "tomtom-docker-registry-bintray"
+  dockerRepo: "python"
+  dockerDeployFile: "Dockerfile"
+
+steps:
+
+- task: Docker@2
+  condition: or(eq(variables['release'], 'true'), eq(variables['dockerSnapshot'], 'true'))
+  inputs:
+    command: login
+    containerRegistry: ${{ parameters.dockerRegistryConnector }}
+  displayName: Login to Docker registry
+
+- task: Docker@2
+  condition: or(eq(variables['release'], 'true'), eq(variables['dockerSnapshot'], 'true'))
+  inputs:
+    command: build
+    repository: ${{ parameters.dockerRepo}}/$(moduleName)
+    Dockerfile: ${{ parameters.dockerDeployFile }}
+    tags: |
+      $(moduleVersion)
+      latest
+  displayName: Build Docker image
+
+- task: Docker@2
+  condition: or(eq(variables['release'], 'true'), eq(variables['dockerSnapshot'], 'true'))
+  inputs:
+    command: push
+    repository: ${{ parameters.dockerRepo}}/$(moduleName)
+    Dockerfile: ${{ parameters.dockerDeployFile }}
+    tags: |
+      $(moduleVersion)
+      latest
+  displayName: Push Docker image to registry

@@ -11,6 +11,10 @@ parameters:
   # Name of 'Service connection' defined in Azure DevOps project settings
   # See https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/twine-authenticate?view=azure-devops#arguments
   pypiConnector: "testpypi-tomtom-dev"
+  dockerDeploy: true
+  dockerRegistryConnector: "tomtom-docker-registry-bintray"
+  dockerRepo: "python"
+  dockerDeployFile: "Dockerfile"
 
 jobs:
 - job: 'Linux'
@@ -58,17 +62,27 @@ jobs:
   - template: ../steps/python/python.build.yml
 
 
-- job: 'Release'
+- job: 'Deploy'
   dependsOn:
     - macOS
     - Linux
     - Windows
-  condition: and(succeeded('macOS'), succeeded('Windows'), succeeded('Linux'), ne(variables['build.reason'], 'PullRequest'), eq(variables['release'], 'true'))
+  condition: |
+    and(succeeded('macOS'),
+        succeeded('Windows'),
+        succeeded('Linux'),
+        eq(variables['Build.Reason'], 'Manual'),
+        or(eq(variables['release'], 'true'),
+           eq(variables['dockerSnapshot'], 'true')))
   pool:
     vmImage: 'ubuntu-16.04'
   variables:
   - group: GitHub
   steps:
-  - template: ../steps/python/python.release.yml
+  - template: ../steps/python/python.deploy.yml
     parameters:
       pypiConnector: "${{ parameters.pypiConnector }}"
+      dockerDeploy: "${{ parameters.dockerDeploy }}"
+      dockerRegistryConnector: "${{ parameters.dockerRegistryConnector }}"
+      dockerRepo: "${{ parameters.dockerRepo }}"
+      dockerDeployFile: "${{ parameters.dockerDeployFile }}"
