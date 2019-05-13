@@ -14,7 +14,7 @@ This job is based on setuptools and runs builds, linter and tests using `python 
 
 ###### release
 
-The Python pipeline allows only on-demand releases. By default the project is only build and validated. If a new release of the Python module and Docker image
+The Python pipeline allows only on-demand releases. By default the project is only built and validated. If a new release of the Python module and Docker image
 should be released a new build has to be queued.
 
 In order to initiate a new release the variable *release: true* needs to be defined during the queuing. This will result in bumping the
@@ -47,7 +47,7 @@ Azure DevOps service connector that defines the Docker registry where the Docker
 
 ###### dockerRepo
 
-Name of the repository an image should be pushed to. This is as well called in Docker terminlogy a namespace.
+Name of the repository an image should be pushed to. This is as well called in Docker terminology a namespace.
 
 A Docker image with a Python module will be called `<dockerRepo>/<name-of-module>`.
 
