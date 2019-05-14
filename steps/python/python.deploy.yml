@@ -102,4 +102,4 @@ steps:
 
 - script: git push --tags https://${{ parameters.gitCiToken }}@github.com/$(Build.Repository.Name).git $(branch)
   condition: eq(variables['release'], 'true')
-  displayName: "Push version commits (release and patch)"
+  displayName: "Push version commits (release and snapshot)"
