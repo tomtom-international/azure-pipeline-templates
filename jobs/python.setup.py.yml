@@ -17,7 +17,7 @@ parameters:
   # Name of 'Service connection' defined in Azure DevOps project settings
   # See https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/twine-authenticate?view=azure-devops#arguments
   pypiConnector: "testpypi-tomtom-dev"
-
+  pythonUseVersion: "3.6"
 
 jobs:
 - job: 'Linux'
@@ -92,3 +92,4 @@ jobs:
       gitCiUserMail: "$(GH_USER_MAIL)"
       gitCiUserName: "$(GH_USER_NAME)"
       pypiConnector: "${{ parameters.pypiConnector }}"
+      pythonUseVersion: "${{ parameters.pythonUseVersion }}"

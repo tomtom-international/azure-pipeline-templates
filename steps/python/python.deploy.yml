@@ -12,6 +12,7 @@ parameters:
   gitCiUserMail: ""
   gitCiUserName: ""
   pypiConnector: "testpypi-tomtom-dev"
+  pythonUseVersion: "3.6"
 
 steps:
 - checkout: self
@@ -38,7 +39,7 @@ steps:
 
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: "3.6"
+    versionSpec: "${{ parameters.pythonUseVersion }}"
     architecture: "x64"
 
 - script: |

@@ -54,17 +54,17 @@ By default Docker images are built only during the release process. In case a sn
 
 ##### Parameters
 
-###### pypiConnector
-
-Azure DevOps service connector that defines the PyPI index (eg. pypi.org) where PyPi modules should be deployed to.
-
-*Default*: testpypi-tomtom-dev
-
 ###### dockerDeploy
 
 Flag to enable/disable building and publishing a Docker image with the Python module.
 
 *Default*: true
+
+###### dockerDeployFile
+
+Filename of the Dockerfile used for defining the content of the image to be pushed to the Docker registry.
+
+*Default*: Dockerfile
 
 ###### dockerRegistryConnector
 
@@ -80,12 +80,17 @@ A Docker image with a Python module will be called `<dockerRepo>/<name-of-module
 
 *Default*: python
 
-###### dockerDeployFile
+###### pypiConnector
 
-Filename of the Dockerfile used for defining the content of the image to be pushed to the Docker registry.
+Azure DevOps service connector that defines the PyPI index (eg. pypi.org) where PyPi modules should be deployed to.
 
-*Default*: Dockerfile
+*Default*: testpypi-tomtom-dev
 
+###### pythonUserVersion
+
+The Python version used for creating the source distribution package deployed to the specified PyPI index.
+
+*Default*: 3.6
 
 ## Creating Azure Pipelines
 
