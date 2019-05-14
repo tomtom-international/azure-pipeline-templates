@@ -12,8 +12,6 @@ parameters:
   dockerDeployFile: "Dockerfile"
   dockerRegistryConnector: "tomtom-docker-registry-bintray"
   dockerRepo: "python"
-  gitCiUserMail: ""
-  gitCiUserName: ""
   # Name of 'Service connection' defined in Azure DevOps project settings
   # See https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/twine-authenticate?view=azure-devops#arguments
   pypiConnector: "testpypi-tomtom-dev"
