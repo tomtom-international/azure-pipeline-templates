@@ -21,6 +21,8 @@ steps:
 - script: |
     git config --global user.email "${{ parameters.gitCiUserMail }}"
     git config --global user.name "${{ parameters.gitCiUserName }}"
+    git config user.email
+    git config user.name
   condition: eq(variables['release'], 'true')
   displayName: "Configure git"
 
@@ -50,7 +52,8 @@ steps:
   condition: eq(variables['release'], 'true')
   displayName: "Install publish prerequisites"
 
-- script: "bumpversion --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' release"
+- script: |
+    echo "bumpversion --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' release"
   condition: eq(variables['release'], 'true')
   displayName: "Bump version release"
 
@@ -64,7 +67,7 @@ steps:
   inputs:
     externalFeeds: "${{ parameters.pypiConnector }}"
 
-- script: twine upload --verbose -r pypi --config-file $(PYPIRC_PATH) dist/*
+- script: echo "twine upload --verbose -r pypi --config-file $(PYPIRC_PATH) dist/*"
   condition: eq(variables['release'], 'true')
   displayName: "Publish to PyPI"
 
@@ -96,10 +99,11 @@ steps:
       dockerRepo: ${{ parameters.dockerRepo }}
       dockerDeployFile: ${{ parameters.dockerDeployFile }}
 
-- script: "bumpversion --no-tag --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' patch"
+- script: |
+    echo "bumpversion --no-tag --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' patch"
   condition: eq(variables['release'], 'true')
   displayName: "Bump version patch"
 
-- script: git push --tags https://${{ parameters.gitCiToken }}@github.com/$(Build.Repository.Name).git $(branch)
+- script: echo "git push --tags https://${{ parameters.gitCiToken }}@github.com/$(Build.Repository.Name).git $(branch)"
   condition: eq(variables['release'], 'true')
   displayName: "Push version commits (release and snapshot)"
