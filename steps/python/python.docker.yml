@@ -1,3 +1,9 @@
+# python.docker
+#
+# Login at the Docker registry connected to the service connection (dockerRegistryConnector),
+# build an image and push it to the registry.
+#
+
 parameters:
   dockerRegistryConnector: "tomtom-docker-registry-bintray"
   dockerRepo: "python"
