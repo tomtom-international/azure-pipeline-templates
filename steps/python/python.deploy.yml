@@ -4,11 +4,14 @@
 #
 
 parameters:
-  pypiConnector: "testpypi-tomtom-dev"
   dockerDeploy: true
+  dockerDeployFile: "Dockerfile"
   dockerRegistryConnector: "tomtom-docker-registry-bintray"
   dockerRepo: "python"
-  dockerDeployFile: "Dockerfile"
+  gitCiToken: ""
+  gitCiUserMail: ""
+  gitCiUserName: ""
+  pypiConnector: "testpypi-tomtom-dev"
 
 steps:
 - checkout: self
@@ -16,8 +19,8 @@ steps:
   persistCredentials: true
 
 - script: |
-    git config --global user.email "44620811+tt-ci@users.noreply.github.com"
-    git config --global user.name "tt-ci"
+    git config --global user.email "${{ parameters.gitCiUserMail }}"
+    git config --global user.name "${{ parameters.gitCiUserName }}"
   condition: eq(variables['release'], 'true')
   displayName: "Configure git"
 
@@ -97,6 +100,6 @@ steps:
   condition: eq(variables['release'], 'true')
   displayName: "Bump version patch"
 
-- script: git push --tags https://$(GH_TOKEN)@github.com/$(Build.Repository.Name).git $(branch)
+- script: git push --tags https://${{ parameters.gitCiToken }}@github.com/$(Build.Repository.Name).git $(branch)
   condition: eq(variables['release'], 'true')
   displayName: "Push version commits (release and patch)"

@@ -8,7 +8,32 @@ This repository is the counterpart to the [Jenkins Shared Library repository](ht
 
 #### python.setup.py.yml
 
-This job is based on setuptools and runs builds, linter and tests using `python setup.py` commands.
+This job is based on setuptools and does the following:
+
+* builds the Python module
+* validates the module (eg. linter, tests)
+* deploys the module to a PyPI index
+* deploys the module as a Docker image to a Docker registry
+
+Before using the pipeline please create a new [variable group](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/variable-groups?view=azure-devops&tabs=yaml)
+with the name `GitHub`. This group contains variables required during the release/deploy
+process.
+
+Add the following variables to the group:
+
+* GH_TOKEN
+
+  The [personal access token](https://github.com/settings/tokens) is used when pushing the version bump commits to the master branch during a release (see details below in *Variables -> release*). Change the variable type to *secret*.
+* GH_USER_MAIL
+
+  The email of the user assigned to the personal access token (*GH_TOKEN*).
+
+  Example: `123847392+my-ci-user@users.noreply.github.com`
+* GH_USER_NAME
+
+  The name of the user assigned to the personal access token.
+
+  Example: `my-ci-user`
 
 ##### Variables
 
@@ -19,6 +44,8 @@ should be released a new build has to be queued.
 
 In order to initiate a new release the variable *release: true* needs to be defined during the queuing. This will result in bumping the
 version (snapshot->release) and result in a deployed PyPI package, a Docker image and two version commits.
+
+In order
 
 ###### dockerSnapshot
 
