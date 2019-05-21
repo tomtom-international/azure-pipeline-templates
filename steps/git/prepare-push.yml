@@ -1,0 +1,23 @@
+parameters:
+  gitCiUserMail: ""
+  gitCiUserName: ""
+
+steps:
+- checkout: self
+  # Allow scripts to access the system token so that the pipeline can push git changes (eg. version bump)
+  persistCredentials: true
+
+- script: |
+    git config --global user.email "${{ parameters.gitCiUserMail }}"
+    git config --global user.name "${{ parameters.gitCiUserName }}"
+  displayName: "Configure git"
+
+# Checkout branch since by default Azure Pipelines do checkouts of specific commits (detached HEAD)
+# and we need to be at master to be able to push version bump changes.
+# We need to use a powershell script here to extract the proper branch name by removing 'refs/heads/' from the BUILD_SOURCEBRANCH variable
+# (eg. 'refs/heads/feature/feat-a' becomes 'feature/feat-a').
+- powershell: write-host "##vso[task.setvariable variable=branch]$($env:BUILD_SOURCEBRANCH.substring($env:BUILD_SOURCEBRANCH.indexOf('/', 5) + 1))"
+  displayName: "Extract the branch name"
+
+- script: git checkout $(branch)
+  displayName: "Checkout branch"
