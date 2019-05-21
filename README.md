@@ -42,15 +42,13 @@ Add the following variables to the group:
 The Python pipeline allows only on-demand releases. By default the project is only built and validated. If a new release of the Python module and Docker image
 should be released a new build has to be queued.
 
-In order to initiate a new release the variable *release: true* needs to be defined during the queuing. This will result in bumping the
+In order to initiate a new release the variable `release: true` needs to be defined during the queuing. This will result in bumping the
 version (snapshot->release) and result in a deployed PyPI package, a Docker image and two version commits.
-
-In order
 
 ###### dockerSnapshot
 
 By default Docker images are built only during the release process. In case a snapshot image is needed one can queue a new build and set the variable
-*dockerSnapshot: true*. This will result in building a Docker image with a snapshot version.
+`dockerSnapshot: true`. This will result in building a Docker image with a snapshot version.
 
 ##### Parameters
 
@@ -74,7 +72,7 @@ Azure DevOps service connector that defines the Docker registry where the Docker
 
 ###### dockerRepo
 
-Name of the repository an image should be pushed to. This is as well called in Docker terminology a namespace.
+Name of the repository an image should be pushed to. Also called a namespace in Docker terminology.
 
 A Docker image with a Python module will be called `<dockerRepo>/<name-of-module>`.
 
