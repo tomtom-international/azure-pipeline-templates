@@ -5,10 +5,24 @@ trigger:
 
 jobs:
   - job: Release
-    condition: and(eq(variables['Build.Reason'], 'Manual'), eq(variables['release'], 'true')))
+    condition: or(eq(variables['release'], 'true'), ne(variables['Build.SourceBranchName'], 'master'))
     pool:
       vmImage: 'ubuntu-16.04'
     variables:
     - group: GitHub
     steps:
-    - bash: echo "Hello World"
+    - bash: |
+        # By default a release build on master won't do a dry-run except you explictly told so.
+        if [ "${{ variables['Build.SourceBranchName'] }}" == "master" ] && [ "$(dryRun)" != "true" ]; then
+           echo "##vso[task.setvariable variable=dryRun]false"
+        fi
+    - template: steps/git/prepare-push.yml
+      parameters:
+        gitCiUserMail: "$(GH_USER_MAIL)"
+        gitCiUserName: "$(GH_USER_NAME)"
+    - template: steps/release/bumpversion-release.yml
+    - template: steps/release/bumpversion-patch.yml
+    - template: steps/git/push-branch.yml
+      parameters:
+        branch: $(branch)
+        gitCiToken: "$(GH_TOKEN)"

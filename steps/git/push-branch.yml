@@ -1,0 +1,9 @@
+parameters:
+  gitCiToken: ""
+  branch: "master"
+
+steps:
+- script: |
+    if [ "$(dryRun)" != "false" ]; then arg="--dry-run"; fi;
+    git push  $arg --tags https://${{ parameters.gitCiToken }}@github.com/$(Build.Repository.Name).git ${{ parameters.branch }}
+  displayName: "Push changes"

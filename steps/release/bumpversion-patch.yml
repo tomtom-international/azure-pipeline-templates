@@ -1,0 +1,10 @@
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: "3.6"
+    architecture: "x64"
+
+- script: |
+    if [ "$(dryRun)" != "false" ]; then arg="--dry-run"; fi;
+    bumpversion $arg --verbose --commit --no-tag --message 'Bump version: {current_version} -> {new_version} [skip ci]' patch
+  displayName: "Bump version patch"

@@ -1,0 +1,14 @@
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: "3.6"
+    architecture: "x64"
+
+- script: |
+    pip install --no-cache-dir bumpversion==0.5.3
+  displayName: "Install bumpversion"
+
+- script: |
+    if [ "$(dryRun)" != "false" ]; then arg="--dry-run"; fi;
+    bumpversion $arg --verbose --commit --tag --message 'Bump version: {current_version} -> {new_version} [skip ci]' release
+  displayName: "Bump version release"
