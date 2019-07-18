@@ -19,7 +19,6 @@ steps:
   displayName: Login to Docker registry
 
 - task: Docker@2
-  condition: or(eq(variables['release'], 'true'), eq(variables['dockerSnapshot'], 'true'))
   inputs:
     command: build
     repository: ${{ parameters.dockerRepo}}/$(moduleName)
