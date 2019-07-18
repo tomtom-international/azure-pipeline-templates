@@ -8,9 +8,14 @@
 #
 
 parameters:
+  dockerDeploy: true
+  dockerDeployFile: "Dockerfile"
+  dockerRegistryConnector: "tomtom-docker-registry-bintray"
+  dockerRepo: "python"
   # Name of 'Service connection' defined in Azure DevOps project settings
   # See https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/twine-authenticate?view=azure-devops#arguments
   pypiConnector: "testpypi-tomtom-dev"
+  pythonUseVersion: "3.6"
 
 jobs:
 - job: 'Linux'
@@ -25,10 +30,6 @@ jobs:
   pool:
     vmImage: 'ubuntu-16.04'
   steps:
-  - script: |
-      sudo apt-get install --no-install-recommends -y \
-        git gcc musl-dev curl libldap2-dev libsasl2-dev openssh-client
-    displayName: 'Install system dependencies'
   - template: ../steps/python/python.build.yml
 
 
@@ -73,15 +74,31 @@ jobs:
   - template: ../steps/python/python.release.checks.yml
 
 
-- job: 'Release'
+- job: 'Deploy'
   dependsOn:
     - macOS
     - Linux
     - Windows
-  condition: and(succeeded('macOS'), succeeded('Windows'), succeeded('Linux'), succeeded('ReleaseChecks'), ne(variables['build.reason'], 'PullRequest'), eq(variables['release'], 'true'))
+  condition: |
+    and(succeeded('macOS'),
+        succeeded('Windows'),
+        succeeded('Linux'),
+        eq(variables['Build.Reason'], 'Manual'),
+        or(eq(variables['release'], 'true'),
+           eq(variables['dockerSnapshot'], 'true')))
   pool:
     vmImage: 'ubuntu-16.04'
+  variables:
+  - group: GitHub
   steps:
-  - template: ../steps/python/python.release.yml
+  - template: ../steps/python/python.deploy.yml
     parameters:
+      dockerDeploy: "${{ parameters.dockerDeploy }}"
+      dockerDeployFile: "${{ parameters.dockerDeployFile }}"
+      dockerRegistryConnector: "${{ parameters.dockerRegistryConnector }}"
+      dockerRepo: "${{ parameters.dockerRepo }}"
+      gitCiToken: "$(GH_TOKEN)"
+      gitCiUserMail: "$(GH_USER_MAIL)"
+      gitCiUserName: "$(GH_USER_NAME)"
       pypiConnector: "${{ parameters.pypiConnector }}"
+      pythonUseVersion: "${{ parameters.pythonUseVersion }}"

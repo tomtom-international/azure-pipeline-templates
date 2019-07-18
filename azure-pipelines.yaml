@@ -1,0 +1,14 @@
+# Pipeline for versioning and releasing the templates.
+
+trigger:
+- master
+
+jobs:
+  - job: Release
+    condition: and(eq(variables['Build.Reason'], 'Manual'), eq(variables['release'], 'true')))
+    pool:
+      vmImage: 'ubuntu-16.04'
+    variables:
+    - group: GitHub
+    steps:
+    - bash: echo "Hello World"
