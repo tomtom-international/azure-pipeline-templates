@@ -56,16 +56,12 @@ steps:
   displayName: "Build & create distribution"
 
 - task: TwineAuthenticate@0
-  condition: not(eq(variables['release'], 'true'))
-  inputs:
-    externalFeeds: "testpypi-tomtom-dev"
-
-- task: TwineAuthenticate@0
   condition: eq(variables['release'], 'true')
   inputs:
     externalFeeds: "${{ parameters.pypiConnector }}"
 
 - script: twine upload --verbose -r pypi --config-file $(PYPIRC_PATH) dist/*
+  condition: eq(variables['release'], 'true')
   displayName: "Publish to PyPI"
 
 # Parameters cannot be used in conditions and therefore we need to convert them first to variables.
