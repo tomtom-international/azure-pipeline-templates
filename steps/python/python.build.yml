@@ -23,6 +23,7 @@ steps:
 - script: |
     python setup.py install --user
     python setup.py lint --lint-output-format parseable
+  condition: eq(variables['Agent.OS'], 'Linux')
   displayName: "Pylint"
 
 - script: |
