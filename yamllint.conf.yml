@@ -1,0 +1,8 @@
+---
+extends: default
+
+rules:
+  # Too many things break when this is enabled, due to how nested things can be
+  line-length: disable
+
+ignore: /.git/
