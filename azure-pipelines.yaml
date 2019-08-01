@@ -1,7 +1,8 @@
 # Pipeline for versioning and releasing the templates.
+---
 
 trigger:
-- master
+  - master
 
 resources:
   repositories:
@@ -14,12 +15,12 @@ resources:
       endpoint: tomtom-international
 
 jobs:
-- job: 'Linux'
-  strategy:
-    matrix:
-      Python37:
-        python.version: '3.7'
-  pool:
-    vmImage: 'ubuntu-16.04'
-  steps:
-  - template: steps/yaml/yaml.lint.yml
+  - job: 'Linux'
+    strategy:
+      matrix:
+        Python37:
+          python.version: '3.7'
+    pool:
+      vmImage: 'ubuntu-16.04'
+    steps:
+      - template: steps/yaml/yaml.lint.yml
