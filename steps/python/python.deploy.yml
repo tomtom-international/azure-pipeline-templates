@@ -56,8 +56,13 @@ steps:
     gitCiToken: ${{ parameters.gitCiToken }}
     pypiConnector: ${{ parameters.pypiconnector }}
 
+# Parameters cannot be used in conditions and therefore we need to convert them first to variables.
+# See https://github.com/microsoft/azure-pipelines-yaml/issues/64.
+- script: |
+    echo "##vso[task.setvariable variable=dockerDeploy]${{ parameters.dockerDeploy }}"
+
 - template: docker.release.yml
-  condition: or(eq(variables['release'], 'true'), eq(variables['dockerSnapshot'], 'true'))
+  condition: and(or(eq(variables['release'], 'true'), eq(variables['dockerSnapshot'], 'true')), eq(variables['dockerDeploy'], 'true'))
   parameters:
     image: ${{ NAME }}
     version: ${{ VERSION }}
