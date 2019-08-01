@@ -1,0 +1,15 @@
+# yaml.lint.yml
+#
+# Runs the yaml lint command
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: "${{ parameters.pythonUseVersion }}"
+    architecture: "x64"
+
+- script: |
+    pip install --no-cache-dir yamllint==1.16.0
+  displayName: "Install yaml linter"
+
+- script: "yamllint ."
+  displayName: "Execute yaml linter"
