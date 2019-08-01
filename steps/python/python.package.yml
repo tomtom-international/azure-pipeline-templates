@@ -1,0 +1,52 @@
+# python.package
+#
+# Performs the packaging of a Python package, including version bumping
+
+parameters:
+  image: ""
+  imageVersion: ""
+  dockerDeploy: true
+  dockerDeployFile: "Dockerfile"
+  dockerRepo: "python"
+  pythonUseVersion: "3.6"
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: "${{ parameters.pythonUseVersion }}"
+    architecture: "x64"
+
+- script: |
+    pip install --no-cache-dir \
+      bumpversion==0.5.3 \
+      twine==1.12.1 \
+      setuptools==40.8.0 \
+      pip==19.0.3
+  displayName: "Install publish prerequisites"
+
+- script: "bumpversion --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' release"
+  displayName: "Bump version release"
+
+- script: |
+    python setup.py build
+    python setup.py sdist
+  displayName: "Build & create distribution"
+
+# Parameters cannot be used in conditions and therefore we need to convert them first to variables.
+# See https://github.com/microsoft/azure-pipelines-yaml/issues/64.
+- script: |
+    echo "##vso[task.setvariable variable=dockerDeploy]${{ parameters.dockerDeploy }}"
+
+- task: Docker@2
+  condition: eq(variables['dockerDeploy'], 'true')
+  inputs:
+    command: build
+    repository: ${{ parameters.dockerRepo}}/$(image)
+    Dockerfile: ${{ parameters.dockerDeployFile }}
+    tags: |
+      $(imageVersion)
+      latest
+  displayName: Build Docker image
+
+- script: "bumpversion --no-tag --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' patch"
+  displayName: "Bump version patch"

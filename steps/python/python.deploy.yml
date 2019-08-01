@@ -34,41 +34,6 @@ steps:
 - script: git checkout $(branch)
   displayName: "Checkout branch"
 
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: "${{ parameters.pythonUseVersion }}"
-    architecture: "x64"
-
-- script: |
-    pip install --no-cache-dir \
-      bumpversion==0.5.3 \
-      twine==1.12.1 \
-      setuptools==40.8.0 \
-      pip==19.0.3
-  displayName: "Install publish prerequisites"
-
-- script: "bumpversion --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' release"
-  displayName: "Bump version release"
-
-- script: |
-    python setup.py build
-    python setup.py sdist
-  displayName: "Build & create distribution"
-
-- task: TwineAuthenticate@0
-  condition: eq(variables['release'], 'true')
-  inputs:
-    externalFeeds: "${{ parameters.pypiConnector }}"
-
-- script: twine upload --verbose -r pypi --config-file $(PYPIRC_PATH) dist/*
-  condition: eq(variables['release'], 'true')
-  displayName: "Publish to PyPI"
-
-# Parameters cannot be used in conditions and therefore we need to convert them first to variables.
-# See https://github.com/microsoft/azure-pipelines-yaml/issues/64.
-- script: |
-    echo "##vso[task.setvariable variable=dockerDeploy]${{ parameters.dockerDeploy }}"
-
 - script: |
     VERSION=$(python setup.py --version)
     NAME=$(python setup.py --name)
@@ -76,23 +41,27 @@ steps:
     echo "##vso[task.setvariable variable=moduleName]${NAME}"
   displayName: "Obtain Python module version and name"
 
-# The condition should actually look like this:
-#    - ${{ if and(eq(variables['Build.Reason'], 'Manual'), eq(variables['dockerDeploy'], 'true'), or(eq(variables['release'], 'true'), eq(variables['dockerSnapshot'], 'true'))) }}:
-# but unfortunately only parameters or pre-defined variables (eg. Build.Reason, etc.) can be used in template expressions.
-# Also, templates unfortunately do not support directly task conditions (https://github.com/Microsoft/azure-pipelines-agent/issues/1749) and therefore it needs
-# to be solved with template expressions.
-# Since only pre-defined variables and parameters can be used in template expressions, the last part (release/dockerSnapshot) is used as a task condition in
-# python.docker.yml.
-# See as well https://github.com/Microsoft/azure-pipelines-yaml/issues/30#issuecomment-435927695).
-- template: python.docker.yml
+- template: python.package.yml
   parameters:
-    dockerRegistryConnector: ${{ parameters.dockerRegistryConnector }}
+    pythonUseVersion: ${{ parameters.pythonUseVersion }}
+    image: ${{ NAME }}
+    imageVersion: ${{ VERSION }}
+    dockerDeploy: ${{ parameters.dockerDeploy }}
     dockerRepo: ${{ parameters.dockerRepo }}
     dockerDeployFile: ${{ parameters.dockerDeployFile }}
 
-- script: "bumpversion --no-tag --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' patch"
-  displayName: "Bump version patch"
-
-- script: git push --tags https://${{ parameters.gitCiToken }}@github.com/$(Build.Repository.Name).git $(branch)
+- template: python.release.yml
   condition: eq(variables['release'], 'true')
-  displayName: "Push version commits (release and snapshot)"
+  parameters:
+    gitCiToken: ${{ parameters.gitCiToken }}
+    pypiConnector: ${{ parameters.pypiconnector }}
+
+- template: docker.release.yml
+  condition: or(eq(variables['release'], 'true'), eq(variables['dockerSnapshot'], 'true'))
+  parameters:
+    image: ${{ NAME }}
+    version: ${{ VERSION }}
+    dockerRegistryConnector: ${{ parameters.dockerRegistryConnector }}
+    dockerDeploy: ${{ parameters.dockerDeploy }}
+    dockerRepo: ${{ parameters.dockerRepo }}
+    dockerDeployFile: ${{ parameters.dockerDeployFile }}

@@ -1,7 +1,6 @@
 # python.build
 #
 # Build, lint and test Python modules based on setuptools (setup.py)
-#
 
 steps:
 - task: UsePythonVersion@0

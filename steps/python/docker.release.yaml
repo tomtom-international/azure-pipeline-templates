@@ -1,0 +1,28 @@
+# docker.release
+#
+# Publishes a Docker image (full version or snapshot) to a repository
+
+parameters:
+  dockerDeployFile: "Dockerfile"
+  dockerRegistryConnector: "tomtom-docker-registry-bintray"
+  dockerRepo: ""
+  image: ""
+  version: ""
+
+
+- task: Docker@2
+  inputs:
+    command: login
+    containerRegistry: ${{ parameters.dockerRegistryConnector }}
+  displayName: Login to Docker registry
+
+
+- task: Docker@2
+  inputs:
+    command: push
+    repository: ${{ parameters.dockerRepo}}/$(image)
+    Dockerfile: ${{ parameters.dockerDeployFile }}
+    tags: |
+      $(version)
+      latest
+  displayName: Push Docker image to registry
