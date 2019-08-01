@@ -12,5 +12,5 @@ steps:
       pip install --no-cache-dir yamllint==1.16.0
     displayName: "Install yaml linter"
 
-  - script: "yamllint ."
+  - script: "yamllint  -c yamllint.conf.yml ."
     displayName: "Execute yaml linter"
