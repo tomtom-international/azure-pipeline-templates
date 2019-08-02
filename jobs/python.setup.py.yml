@@ -6,7 +6,7 @@
 #  * Releasing on-demand the Python package to PyPI
 #    * This can be achieved by triggering a manual build and providing a queue variable 'release: true'
 #
----
+
 parameters:
   dockerDeploy: true
   dockerDeployFile: "Dockerfile"
@@ -18,76 +18,76 @@ parameters:
   pythonUseVersion: "3.6"
 
 jobs:
-  - job: 'Linux'
-    strategy:
-      matrix:
-        Python35:
-          python.version: '3.5'
-        Python36:
-          python.version: '3.6'
-        Python37:
-          python.version: '3.7'
-    pool:
-      vmImage: 'ubuntu-16.04'
-    steps:
-      - template: ../steps/python/python.build.yml
+- job: 'Linux'
+  strategy:
+    matrix:
+      Python35:
+        python.version: '3.5'
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - template: ../steps/python/python.build.yml
 
 
-  - job: 'macOS'
-    strategy:
-      matrix:
-        Python35:
-          python.version: '3.5'
-        Python36:
-          python.version: '3.6'
-        Python37:
-          python.version: '3.7'
-    pool:
-      vmImage: 'macos-10.13'
-    steps:
-      - template: ../steps/python/python.build.yml
+- job: 'macOS'
+  strategy:
+    matrix:
+      Python35:
+        python.version: '3.5'
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+  pool:
+    vmImage: 'macos-10.13'
+  steps:
+  - template: ../steps/python/python.build.yml
 
 
-  - job: 'Windows'
-    strategy:
-      matrix:
-        Python35:
-          python.version: '3.5'
-        Python36:
-          python.version: '3.6'
-        Python37:
-          python.version: '3.7'
-    pool:
-      vmImage: 'vs2017-win2016'
-    steps:
-      - template: ../steps/python/python.build.yml
+- job: 'Windows'
+  strategy:
+    matrix:
+      Python35:
+        python.version: '3.5'
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - template: ../steps/python/python.build.yml
 
 
-  - job: 'Deploy'
-    dependsOn:
-      - macOS
-      - Linux
-      - Windows
-    condition: |
-      and(succeeded('macOS'),
-          succeeded('Windows'),
-          succeeded('Linux'),
-          eq(variables['Build.Reason'], 'Manual'),
-          or(eq(variables['release'], 'true'),
-            eq(variables['dockerSnapshot'], 'true')))
-    pool:
-      vmImage: 'ubuntu-16.04'
-    variables:
-      - group: GitHub
-    steps:
-      - template: ../steps/python/python.deploy.yml
-        parameters:
-          dockerDeploy: "${{ parameters.dockerDeploy }}"
-          dockerDeployFile: "${{ parameters.dockerDeployFile }}"
-          dockerRegistryConnector: "${{ parameters.dockerRegistryConnector }}"
-          dockerRepo: "${{ parameters.dockerRepo }}"
-          gitCiToken: "$(GH_TOKEN)"
-          gitCiUserMail: "$(GH_USER_MAIL)"
-          gitCiUserName: "$(GH_USER_NAME)"
-          pypiConnector: "${{ parameters.pypiConnector }}"
-          pythonUseVersion: "${{ parameters.pythonUseVersion }}"
+- job: 'Deploy'
+  dependsOn:
+    - macOS
+    - Linux
+    - Windows
+  condition: |
+    and(succeeded('macOS'),
+        succeeded('Windows'),
+        succeeded('Linux'),
+        eq(variables['Build.Reason'], 'Manual'),
+        or(eq(variables['release'], 'true'),
+           eq(variables['dockerSnapshot'], 'true')))
+  pool:
+    vmImage: 'ubuntu-16.04'
+  variables:
+  - group: GitHub
+  steps:
+  - template: ../steps/python/python.deploy.yml
+    parameters:
+      dockerDeploy: "${{ parameters.dockerDeploy }}"
+      dockerDeployFile: "${{ parameters.dockerDeployFile }}"
+      dockerRegistryConnector: "${{ parameters.dockerRegistryConnector }}"
+      dockerRepo: "${{ parameters.dockerRepo }}"
+      gitCiToken: "$(GH_TOKEN)"
+      gitCiUserMail: "$(GH_USER_MAIL)"
+      gitCiUserName: "$(GH_USER_NAME)"
+      pypiConnector: "${{ parameters.pypiConnector }}"
+      pythonUseVersion: "${{ parameters.pythonUseVersion }}"

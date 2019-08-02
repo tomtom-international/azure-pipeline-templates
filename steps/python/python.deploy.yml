@@ -2,7 +2,7 @@
 #
 # Deploy Python package to PyPI and optionally to a Docker registry.
 #
----
+
 parameters:
   dockerDeploy: true
   dockerDeployFile: "Dockerfile"
@@ -15,92 +15,92 @@ parameters:
   pythonUseVersion: "3.6"
 
 steps:
-  - checkout: self
-    # Allow scripts to access the system token so that the pipeline can push git changes (eg. version bump)
-    persistCredentials: true
+- checkout: self
+  # Allow scripts to access the system token so that the pipeline can push git changes (eg. version bump)
+  persistCredentials: true
 
-  - script: |
-      git config --global user.email "${{ parameters.gitCiUserMail }}"
-      git config --global user.name "${{ parameters.gitCiUserName }}"
-    condition: eq(variables['release'], 'true')
-    displayName: "Configure git"
+- script: |
+    git config --global user.email "${{ parameters.gitCiUserMail }}"
+    git config --global user.name "${{ parameters.gitCiUserName }}"
+  condition: eq(variables['release'], 'true')
+  displayName: "Configure git"
 
-  # Checkout branch since by default Azure Pipelines do checkouts of specific commits (detached HEAD)
-  # and we need to be at master to be able to push version bump changes.
-  # We need to use a powershell script here to extract the proper branch name by removing 'refs/heads/' from the BUILD_SOURCEBRANCH variable
-  # (eg. 'refs/heads/feature/feat-a' becomes 'feature/feat-a').
-  - powershell: write-host "##vso[task.setvariable variable=branch]$($env:BUILD_SOURCEBRANCH.substring($env:BUILD_SOURCEBRANCH.indexOf('/', 5) + 1))"
-    condition: eq(variables['release'], 'true')
-    displayName: "Extract the branch name"
+# Checkout branch since by default Azure Pipelines do checkouts of specific commits (detached HEAD)
+# and we need to be at master to be able to push version bump changes.
+# We need to use a powershell script here to extract the proper branch name by removing 'refs/heads/' from the BUILD_SOURCEBRANCH variable
+# (eg. 'refs/heads/feature/feat-a' becomes 'feature/feat-a').
+- powershell: write-host "##vso[task.setvariable variable=branch]$($env:BUILD_SOURCEBRANCH.substring($env:BUILD_SOURCEBRANCH.indexOf('/', 5) + 1))"
+  condition: eq(variables['release'], 'true')
+  displayName: "Extract the branch name"
 
-  - script: git checkout $(branch)
-    condition: eq(variables['release'], 'true')
-    displayName: "Checkout branch"
+- script: git checkout $(branch)
+  condition: eq(variables['release'], 'true')
+  displayName: "Checkout branch"
 
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: "${{ parameters.pythonUseVersion }}"
-      architecture: "x64"
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: "${{ parameters.pythonUseVersion }}"
+    architecture: "x64"
 
-  - script: |
-      pip install --no-cache-dir \
-        bumpversion==0.5.3 \
-        twine==1.12.1 \
-        setuptools==40.8.0 \
-        pip==19.0.3
-    condition: eq(variables['release'], 'true')
-    displayName: "Install publish prerequisites"
+- script: |
+    pip install --no-cache-dir \
+      bumpversion==0.5.3 \
+      twine==1.12.1 \
+      setuptools==40.8.0 \
+      pip==19.0.3
+  condition: eq(variables['release'], 'true')
+  displayName: "Install publish prerequisites"
 
-  - script: "bumpversion --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' release"
-    condition: eq(variables['release'], 'true')
-    displayName: "Bump version release"
+- script: "bumpversion --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' release"
+  condition: eq(variables['release'], 'true')
+  displayName: "Bump version release"
 
-  - script: |
-      python setup.py build
-      python setup.py sdist
-    displayName: "Build & create distribution"
+- script: |
+    python setup.py build
+    python setup.py sdist
+  displayName: "Build & create distribution"
 
-  - task: TwineAuthenticate@0
-    condition: eq(variables['release'], 'true')
-    inputs:
-      externalFeeds: "${{ parameters.pypiConnector }}"
+- task: TwineAuthenticate@0
+  condition: eq(variables['release'], 'true')
+  inputs:
+    externalFeeds: "${{ parameters.pypiConnector }}"
 
-  - script: twine upload --verbose -r pypi --config-file $(PYPIRC_PATH) dist/*
-    condition: eq(variables['release'], 'true')
-    displayName: "Publish to PyPI"
+- script: twine upload --verbose -r pypi --config-file $(PYPIRC_PATH) dist/*
+  condition: eq(variables['release'], 'true')
+  displayName: "Publish to PyPI"
 
-  # Parameters cannot be used in conditions and therefore we need to convert them first to variables.
-  # See https://github.com/microsoft/azure-pipelines-yaml/issues/64.
-  - script: |
-      echo "##vso[task.setvariable variable=dockerDeploy]${{ parameters.dockerDeploy }}"
+# Parameters cannot be used in conditions and therefore we need to convert them first to variables.
+# See https://github.com/microsoft/azure-pipelines-yaml/issues/64.
+- script: |
+    echo "##vso[task.setvariable variable=dockerDeploy]${{ parameters.dockerDeploy }}"
 
-  - script: |
-      VERSION=$(python setup.py --version)
-      NAME=$(python setup.py --name)
-      echo "##vso[task.setvariable variable=moduleVersion]${VERSION}"
-      echo "##vso[task.setvariable variable=moduleName]${NAME}"
-    condition: eq(variables['dockerDeploy'], 'true')
-    displayName: "Obtain Python module version and name"
+- script: |
+    VERSION=$(python setup.py --version)
+    NAME=$(python setup.py --name)
+    echo "##vso[task.setvariable variable=moduleVersion]${VERSION}"
+    echo "##vso[task.setvariable variable=moduleName]${NAME}"
+  condition: eq(variables['dockerDeploy'], 'true')
+  displayName: "Obtain Python module version and name"
 
-  # The condition should actually look like this:
-  #    - ${{ if and(eq(variables['Build.Reason'], 'Manual'), eq(variables['dockerDeploy'], 'true'), or(eq(variables['release'], 'true'), eq(variables['dockerSnapshot'], 'true'))) }}:
-  # but unfortunately only parameters or pre-defined variables (eg. Build.Reason, etc.) can be used in template expressions.
-  # Also, templates unfortunately do not support directly task conditions (https://github.com/Microsoft/azure-pipelines-agent/issues/1749) and therefore it needs
-  # to be solved with template expressions.
-  # Since only pre-defined variables and parameters can be used in template expressions, the last part (release/dockerSnapshot) is used as a task condition in
-  # python.docker.yml.
-  # See as well https://github.com/Microsoft/azure-pipelines-yaml/issues/30#issuecomment-435927695).
-  - ${{ if and(eq(variables['Build.Reason'], 'Manual'), eq(parameters['dockerDeploy'], 'true')) }}:
-      - template: python.docker.yml
+# The condition should actually look like this:
+#    - ${{ if and(eq(variables['Build.Reason'], 'Manual'), eq(variables['dockerDeploy'], 'true'), or(eq(variables['release'], 'true'), eq(variables['dockerSnapshot'], 'true'))) }}:
+# but unfortunately only parameters or pre-defined variables (eg. Build.Reason, etc.) can be used in template expressions.
+# Also, templates unfortunately do not support directly task conditions (https://github.com/Microsoft/azure-pipelines-agent/issues/1749) and therefore it needs
+# to be solved with template expressions.
+# Since only pre-defined variables and parameters can be used in template expressions, the last part (release/dockerSnapshot) is used as a task condition in
+# python.docker.yml.
+# See as well https://github.com/Microsoft/azure-pipelines-yaml/issues/30#issuecomment-435927695).
+- ${{ if and(eq(variables['Build.Reason'], 'Manual'), eq(parameters['dockerDeploy'], 'true')) }}:
+  - template: python.docker.yml
     parameters:
       dockerRegistryConnector: ${{ parameters.dockerRegistryConnector }}
       dockerRepo: ${{ parameters.dockerRepo }}
       dockerDeployFile: ${{ parameters.dockerDeployFile }}
 
-  - script: "bumpversion --no-tag --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' patch"
-    condition: eq(variables['release'], 'true')
-    displayName: "Bump version patch"
+- script: "bumpversion --no-tag --message 'Bump version: {current_version} -> {new_version} ***NO_CI***' patch"
+  condition: eq(variables['release'], 'true')
+  displayName: "Bump version patch"
 
-  - script: git push --tags https://${{ parameters.gitCiToken }}@github.com/$(Build.Repository.Name).git $(branch)
-    condition: eq(variables['release'], 'true')
-    displayName: "Push version commits (release and snapshot)"
+- script: git push --tags https://${{ parameters.gitCiToken }}@github.com/$(Build.Repository.Name).git $(branch)
+  condition: eq(variables['release'], 'true')
+  displayName: "Push version commits (release and snapshot)"
