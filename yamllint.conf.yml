@@ -1,3 +1,5 @@
+# Configuration file linting the yaml files that configure Azure Pipelines
+# This file is *not* applied to any pipelines consuming the yaml linting template.
 ---
 extends: default
 

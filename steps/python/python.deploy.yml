@@ -3,7 +3,6 @@
 # Deploy Python package to PyPI and optionally to a Docker registry.
 #
 ---
-
 parameters:
   dockerDeploy: true
   dockerDeployFile: "Dockerfile"

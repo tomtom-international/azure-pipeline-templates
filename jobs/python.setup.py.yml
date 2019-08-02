@@ -7,7 +7,6 @@
 #    * This can be achieved by triggering a manual build and providing a queue variable 'release: true'
 #
 ---
-
 parameters:
   dockerDeploy: true
   dockerDeployFile: "Dockerfile"

@@ -1,6 +1,5 @@
 # Pipeline for versioning and releasing the templates.
 ---
-
 trigger:
   - master
 
