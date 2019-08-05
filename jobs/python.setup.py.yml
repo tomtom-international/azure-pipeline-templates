@@ -8,9 +8,6 @@
 #
 
 parameters:
-  # This allows flexibility in the versions of Python tested, done as a workaround because Azure-DevOps variables are limited
-  # See https://stackoverflow.com/questions/54372758/azure-devops-yaml-pipelines-specification-of-matrix-through-build-variable
-  pythonTestVersions: "{Python35: {python.version: '3.5'}, Python36: {python.version: '3.6'}, Python37: {python.version: '3.7'}}"
   dockerDeploy: true
   dockerDeployFile: "Dockerfile"
   dockerRegistryConnector: "tomtom-docker-registry-bintray"
@@ -21,19 +18,15 @@ parameters:
   pythonUseVersion: "3.6"
 
 jobs:
-# Creates a output variable with the Python versions to test
-- job: 'Setup'
-  pool:
-    vmImage: 'ubuntu-16.04'
-  steps:
-  - powershell: write-host "##vso[task.setvariable variable=jobMatrix;isOutput=true]$parameters.pythonTestVersions"
-    name: "Python_Versions"
-
 - job: 'Linux'
-  dependsOn:
-    - Setup
   strategy:
-    matrix: $[ dependencies.Setup.outputs['jobMatrix'] ]
+    matrix:
+      Python35:
+        python.version: '3.5'
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
   pool:
     vmImage: 'ubuntu-16.04'
   steps:
@@ -41,10 +34,14 @@ jobs:
 
 
 - job: 'macOS'
-  dependsOn:
-    - Setup
   strategy:
-    matrix: $[ dependencies.Setup.outputs['jobMatrix'] ]
+    matrix:
+      Python35:
+        python.version: '3.5'
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
   pool:
     vmImage: 'macos-10.13'
   steps:
@@ -52,10 +49,14 @@ jobs:
 
 
 - job: 'Windows'
-  dependsOn:
-    - Setup
   strategy:
-    matrix: $[ dependencies.Setup.outputs['jobMatrix'] ]
+    matrix:
+      Python35:
+        python.version: '3.5'
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
   pool:
     vmImage: 'vs2017-win2016'
   steps:
