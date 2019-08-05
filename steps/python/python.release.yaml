@@ -1,0 +1,19 @@
+# python.release
+#
+# Publishes a Python package to pypi
+
+parameters:
+  gitCiToken: ""
+  pypiConnector: "testpypi-tomtom-dev"
+
+steps:
+- task: TwineAuthenticate@0
+  inputs:
+    externalFeeds: "${{ parameters.pypiConnector }}"
+
+- script: twine upload --verbose -r pypi --config-file $(PYPIRC_PATH) dist/*
+  displayName: "Publish to PyPI"
+
+- script: git push --tags https://${{ parameters.gitCiToken }}@github.com/$(Build.Repository.Name).git $(branch)
+  condition: eq(variables['release'], 'true')
+  displayName: "Push version commits (release and snapshot)"
