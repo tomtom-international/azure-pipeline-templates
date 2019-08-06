@@ -15,18 +15,22 @@ parameters:
   # Name of 'Service connection' defined in Azure DevOps project settings
   # See https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/twine-authenticate?view=azure-devops#arguments
   pypiConnector: "testpypi-tomtom-dev"
-  pythonUseVersion: "3.6"
+  pythonDeployVersion: "3.6"
+  pythonTestVersions:
+  - name: Python35
+    version: "3.5"
+  - name: Python36
+    version: "36"
+  - name: Python37
+    version: "3.7"
 
 jobs:
 - job: 'Linux'
   strategy:
-    matrix:
-      Python35:
-        python.version: '3.5'
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
+    matrix: 
+      ${{ each pyVersion in parameters.pythonTestVersions }}:
+        ${{ pyVersion.name }}:
+          python.version: ${{ pyVersion.version }}
   pool:
     vmImage: 'ubuntu-16.04'
   steps:
@@ -90,4 +94,4 @@ jobs:
       gitCiUserMail: "$(GH_USER_MAIL)"
       gitCiUserName: "$(GH_USER_NAME)"
       pypiConnector: "${{ parameters.pypiConnector }}"
-      pythonUseVersion: "${{ parameters.pythonUseVersion }}"
+      pythonUseVersion: "${{ parameters.pythonDeployVersion }}"
