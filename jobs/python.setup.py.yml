@@ -20,52 +20,29 @@ parameters:
   - name: Python35
     version: "3.5"
   - name: Python36
-    version: "36"
+    version: "3.6"
   - name: Python37
     version: "3.7"
+  testJobs:
+  - name: Linux
+    vmImage: ubuntu-16.04
+  - name: macOS
+    vmImage: macos-10.13
+  - name: Windows
+    vmImage: vs2017-win2016
 
 jobs:
-- job: 'Linux'
-  strategy:
-    matrix: 
-      ${{ each pyVersion in parameters.pythonTestVersions }}:
-        ${{ pyVersion.name }}:
-          python.version: ${{ pyVersion.version }}
-  pool:
-    vmImage: 'ubuntu-16.04'
-  steps:
-  - template: ../steps/python/python.build.yml
-
-
-- job: 'macOS'
-  strategy:
-    matrix:
-      Python35:
-        python.version: '3.5'
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
-  pool:
-    vmImage: 'macos-10.13'
-  steps:
-  - template: ../steps/python/python.build.yml
-
-
-- job: 'Windows'
-  strategy:
-    matrix:
-      Python35:
-        python.version: '3.5'
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
-  pool:
-    vmImage: 'vs2017-win2016'
-  steps:
-  - template: ../steps/python/python.build.yml
-
+- ${{ each job in parameters.testJobs }}:
+  - job: ${{ job.name }}
+    strategy:
+      matrix: 
+        ${{ each pyVersion in parameters.pythonTestVersions }}:
+          ${{ pyVersion.name }}:
+            python.version: ${{ pyVersion.version }}
+    pool:
+      vmImage: ${{ job.vmImage }}
+    steps:
+    - template: ../steps/python/python.build.yml
 
 - job: 'Deploy'
   dependsOn:
