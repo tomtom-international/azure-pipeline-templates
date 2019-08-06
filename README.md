@@ -84,11 +84,41 @@ Azure DevOps service connector that defines the PyPI index (eg. pypi.org) where 
 
 *Default*: testpypi-tomtom-dev
 
-###### pythonUserVersion
+###### pythonDeployVersion
 
 The Python version used for creating the source distribution package deployed to the specified PyPI index.
 
 *Default*: 3.6
+
+###### pythonTestVersions
+
+Specify the Python versions to be used in all jobs *other* than deploy (which uses just pythonDeployVersion).
+
+*Default*:
+
+```yaml
+  - name: Python35
+    version: "3.5"
+  - name: Python36
+    version: "3.6"
+  - name: Python37
+    version: "3.7"
+```
+###### jobs
+
+Specify the job names and VM images. By default this runs on all three of the supported platforms, Linux, macOS and Windows.
+
+*Default*:
+
+```yaml
+  - name: Linux
+    vmImage: ubuntu-16.04
+  - name: macOS
+    vmImage: macos-10.13
+  - name: Windows
+    vmImage: vs2017-win2016
+```
+
 
 ## Creating Azure Pipelines
 
