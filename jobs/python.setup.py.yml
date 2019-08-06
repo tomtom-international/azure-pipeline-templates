@@ -23,7 +23,7 @@ parameters:
     version: "3.6"
   - name: Python37
     version: "3.7"
-  testJobs:
+  jobs:
   - name: Linux
     vmImage: ubuntu-16.04
   - name: macOS
@@ -32,7 +32,7 @@ parameters:
     vmImage: vs2017-win2016
 
 jobs:
-- ${{ each job in parameters.testJobs }}:
+- ${{ each job in parameters.jobs }}:
   - job: ${{ job.name }}
     strategy:
       matrix: 
