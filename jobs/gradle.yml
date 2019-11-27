@@ -1,0 +1,50 @@
+# gradle
+#
+# Job responsible for building Gradle Wrapper based projects.
+#
+
+parameters:
+  jdkVersions:
+    - name: JDK_8
+      version: "1.8"
+    - name: JDK_11
+      version: "1.11"
+  jobs:
+    - name: Ubuntu_16
+      vmImage: ubuntu-16.04
+    - name: Ubuntu_18
+      vmImage: ubuntu-18.04
+    - name: macOS_10_14
+      vmImage: macos-10.14
+    - name: Windows_2016
+      vmImage: vs2017-win2016
+
+jobs:
+  - ${{ each job in parameters.jobs }}:
+      - job: ${{ job.name }}
+        strategy:
+          matrix:
+            ${{ each jdkVersion in parameters.jdkVersions }}:
+              ${{ jdkVersion.name }}:
+                jdk.version: ${{ jdkVersion.version }}
+        pool:
+          vmImage: ${{ job.vmImage }}
+        steps:
+          - task: Gradle@2
+            inputs:
+              workingDirectory: ""
+              gradleWrapperFile: "gradlew"
+              gradleOptions: "-Xmx3072m"
+              javaHomeOption: "JDKVersion"
+              jdkVersionOption: "$(jdk.version)"
+              jdkArchitectureOption: "x64"
+              publishJUnitResults: true
+              testResultsFiles: "**/TEST-*.xml"
+              tasks: "build"
+            displayName: gradlew build
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: "$(build.artifactStagingDirectory)"
+              artifactName: "drop"
+              artifactType: "container"
+            displayName: Publish artifacts
