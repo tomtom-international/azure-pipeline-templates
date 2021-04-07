@@ -17,8 +17,6 @@ parameters:
   pypiConnector: "testpypi-tomtom-dev"
   pythonDeployVersion: "3.6"
   pythonTestVersions:
-  - name: Python35
-    version: "3.5"
   - name: Python36
     version: "3.6"
   - name: Python37
